@@ -1,5 +1,7 @@
 {
     "azure_pat": "",
+    "interactive": false,
+    "default_env": "prd",
 
     "resource_group": {
         "name": "rg-mymlops",
