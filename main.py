@@ -157,6 +157,19 @@ def interactive_resource_flow(cfg):
         status(f"🚀 Creating resource group '{rg_name}' in '{location}'...", "action")
         create_resource_group(env_name, rg_name, location, subscription_id)
         status("✅ Create operation completed successfully.", "success")
+    if a == "2":
+        # Fetch resource group and location directly from config
+        # rg_name = input(f"Resource group name [{rg_name or 'none'}]: ").strip() 
+        rg_config = cfg.get("resource_group", {})
+        subscription_id = cfg.get("subscription_id", {})
+        rg_name = rg_config.get("name")
+        location = rg_config.get("location", "eastus")
+        print(f"rg_name: {rg_name}")
+        print(f"location: {location}")
+        
+        status(f"🚀 Creating resource group '{rg_name}' in '{location}'...", "action")
+        delete_resource_group(env_name, rg_name, subscription_id)
+        status("✅ Delete operation completed successfully.", "success")
     else:
         status("Invalid action selected.", "error")
 
@@ -184,83 +197,6 @@ def interactive_model_flow(cfg):
         return
     status(f"Deploying model '{model_name}' in env '{env_name}'...", "action")
     deploy_model(env_name, model_name, cfg)
-
-
-# -----------------------
-# Non-interactive (CLI) flows
-# -----------------------
-def cli_dispatch(args, cfg):
-    # args[0] = service (resource|pipeline|model)
-    # args[1] = action
-    service = args[0].lower()
-    action = args[1].lower() if len(args) > 1 else None
-
-    if service == "resource":
-        print_header_for("resource")
-        if action == "create":
-            # expected: resource create <env> <rg_name> [location]
-            if len(args) < 4:
-                status("Insufficient args for resource create.", "error")
-                print_usage()
-                return
-            env_name = args[2]
-            rg_name = args[3]
-            location = args[4] if len(args) > 4 else cfg.get("default_location")
-            status(f"Creating resource group '{rg_name}' in env '{env_name}' \
-                   (location: {location})...", "action")
-            
-            create_resource_group(env_name, rg_name, location)
-            status("Create operation completed.", "success")
-
-        elif action == "delete":
-            # expected: resource delete <env> <rg_name>
-            if len(args) != 4:
-                status("Insufficient args for resource delete.", "error")
-                print_usage()
-                return
-            env_name = args[2]
-            rg_name = args[3]
-            status(f"Deleting resource group '{rg_name}' in env '{env_name}'...", \
-                   "action")
-            
-            delete_resource_group(env_name, rg_name)
-            status("Delete operation completed.", "success")
-        else:
-            status("Unknown resource action. Use create or delete.", "error")
-            print_usage()
-
-    elif service == "pipeline":
-        print_header_for("pipeline")
-        # expected: pipeline run <env> <pipeline_name>
-        if action == "run":
-            if len(args) < 4:
-                status("Insufficient args for pipeline run.", "error")
-                print_usage()
-                return
-            env_name = args[2]
-            pipeline_name = args[3]
-            run_pipeline(env_name, pipeline_name, cfg)
-        else:
-            status("Unknown pipeline action. Use run.", "error")
-            print_usage()
-
-    elif service == "model":
-        print_header_for("model")
-        # expected: model deploy <env> <model_name>
-        if action == "deploy":
-            if len(args) < 4:
-                status("Insufficient args for model deploy.", "error")
-                print_usage()
-                return
-            env_name = args[2]
-            model_name = args[3]
-            deploy_model(env_name, model_name, cfg)
-        else:
-            status("Unknown model action. Use deploy.", "error")
-            print_usage()
-    else:
-        status("Unknown service. Choose resource|pipeline|model.", "error")
-        print_usage()
 
 
 # -----------------------

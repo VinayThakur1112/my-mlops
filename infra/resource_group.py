@@ -40,19 +40,16 @@ def create_resource_group(env_name, rg_name, location, subscription_id):
     )
     print(f"✅ Resource group '{rg_result.name}' created successfully.")
 
-def delete_resource_group():
+def delete_resource_group(env_name, rg_name, subscription_id):
     """Delete a resource group after validating"""
-    # config = load_config()
-    # subscription_id = config["subscription_id"]
-    # rg_name = config["resource_group"]["name"]
 
-    # resource_client = get_resource_client(subscription_id)
+    resource_client = get_resource_client(subscription_id)
 
-    # if not validate_resource_group(resource_client, rg_name):
-    #     print(f"⚠️ Resource group '{rg_name}' does not exist. Nothing to delete.")
-    #     return
+    if not validate_resource_group(resource_client, rg_name):
+        print(f"⚠️ Resource group '{rg_name}' does not exist. Nothing to delete.")
+        return
 
-    # print(f"🧹 Deleting resource group '{rg_name}'...")
-    # delete_poller = resource_client.resource_groups.begin_delete(rg_name)
-    # delete_poller.wait()
-    # print(f"✅ Resource group '{rg_name}' deleted successfully.")
+    print(f"🧹 Deleting resource group '{rg_name}'...")
+    delete_poller = resource_client.resource_groups.begin_delete(rg_name)
+    delete_poller.wait()
+    print(f"✅ Resource group '{rg_name}' deleted successfully.")
