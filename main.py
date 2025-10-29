@@ -25,7 +25,8 @@ init(autoreset=True)
 # Config loader
 # -----------------------
 def load_app_config():
-    config_path = os.path.join(os.path.dirname(__file__), "config", "config.json")
+    # TODO change the config file to config.json
+    config_path = os.path.join(os.path.dirname(__file__), "config", "config_dev.json")
     if not os.path.exists(config_path):
         raise FileNotFoundError(f"Config file not found: {config_path}")
     with open(config_path, "r") as f:
@@ -56,12 +57,17 @@ def print_header_for(service_name):
 
 def print_usage():
     print(f"{Fore.YELLOW}Usage (non-interactive):{Style.RESET_ALL}")
-    print(f"  {Fore.GREEN}python main.py resource create <env> <rg_name> [location]{Style.RESET_ALL}")
-    print(f"  {Fore.GREEN}python main.py resource delete <env> <rg_name>{Style.RESET_ALL}")
-    print(f"  {Fore.GREEN}python main.py pipeline run <env> <pipeline_name>{Style.RESET_ALL}")
-    print(f"  {Fore.GREEN}python main.py model deploy <env> <model_name>{Style.RESET_ALL}")
+    print(f"  {Fore.GREEN}python main.py resource create <env> <rg_name> \
+          [location]{Style.RESET_ALL}")
+    print(f"  {Fore.GREEN}python main.py resource delete <env> <rg_name>\
+          {Style.RESET_ALL}")
+    print(f"  {Fore.GREEN}python main.py pipeline run <env> <pipeline_name>\
+          {Style.RESET_ALL}")
+    print(f"  {Fore.GREEN}python main.py model deploy <env> <model_name>\
+          {Style.RESET_ALL}")
     print()
-    print(f"{Fore.LIGHTBLACK_EX}Run without args when interactive mode is ON in config.{Style.RESET_ALL}\n")
+    print(f"{Fore.LIGHTBLACK_EX}Run without args when interactive mode is \
+          ON in config.{Style.RESET_ALL}\n")
 
 
 def status(msg, kind="info"):
@@ -110,9 +116,9 @@ def interactive_menu(cfg):
     status("Interactive mode enabled.", "info")
     # choose service
     print("Select service:")
-    print(f"  1) Resource Service")
-    print(f"  2) Data Pipeline")
-    print(f"  3) Model Deployment")
+    print(f"  1) Infra Service")
+    print(f"  2) Pipeline Service")
+    print(f"  3) Deployment Service")
     choice = input(f"\nEnter choice [1-3] (default 1): ").strip() or "1"
 
     if choice not in ("1", "2", "3"):
@@ -129,7 +135,8 @@ def interactive_menu(cfg):
 
 def interactive_resource_flow(cfg):
     print_header_for("resource")
-    env_name = input(f"Environment [{cfg.get('default_env', 'dev')}]: ").strip() or cfg.get("default_env", "dev")
+    env_name = input(f"Environment [{cfg.get('default_env', 'dev')}]: ").strip() \
+        or cfg.get("default_env", "dev")
     status(f"Selected env: {env_name}", "info")
 
     print("\nSelect action:")
@@ -138,33 +145,26 @@ def interactive_resource_flow(cfg):
     a = input("Enter choice [1-2] (default 1): ").strip() or "1"
 
     if a == "1":
-        rg_name = input("Resource group name: ").strip()
-        if not rg_name:
-            status("Resource group name is required. Aborting.", "error")
-            return
-        location = input(f"Location [{cfg.get('default_location', 'eastus')}]: ").strip() or cfg.get('default_location', 'eastus')
-        status(f"Creating resource group '{rg_name}' in '{location}'...", "action")
-        create_resource_group(env_name, rg_name, location)
-        status("Create operation completed.", "success")
-    elif a == "2":
-        rg_name = input("Resource group name to delete: ").strip()
-        if not rg_name:
-            status("Resource group name is required. Aborting.", "error")
-            return
-        confirm = input(f"Are you sure you want to delete '{rg_name}'? Type 'yes' to confirm: ").strip().lower()
-        if confirm == "yes":
-            status(f"Deleting resource group '{rg_name}'...", "action")
-            delete_resource_group(env_name, rg_name)
-            status("Delete operation completed.", "success")
-        else:
-            status("Delete cancelled.", "warn")
+        # Fetch resource group and location directly from config
+        # rg_name = input(f"Resource group name [{rg_name or 'none'}]: ").strip() 
+        rg_config = cfg.get("resource_group", {})
+        subscription_id = cfg.get("subscription_id", {})
+        rg_name = rg_config.get("name")
+        location = rg_config.get("location", "eastus")
+        print(f"rg_name: {rg_name}")
+        print(f"location: {location}")
+        
+        status(f"🚀 Creating resource group '{rg_name}' in '{location}'...", "action")
+        create_resource_group(env_name, rg_name, location, subscription_id)
+        status("✅ Create operation completed successfully.", "success")
     else:
         status("Invalid action selected.", "error")
 
 
 def interactive_pipeline_flow(cfg):
     print_header_for("pipeline")
-    env_name = input(f"Environment [{cfg.get('default_env', 'dev')}]: ").strip() or cfg.get("default_env", "dev")
+    env_name = input(f"Environment [{cfg.get('default_env', 'dev')}]: ").strip() \
+        or cfg.get("default_env", "dev")
     pipeline_name = input("Pipeline name to run: ").strip()
     if not pipeline_name:
         status("Pipeline name is required. Aborting.", "error")
@@ -175,7 +175,9 @@ def interactive_pipeline_flow(cfg):
 
 def interactive_model_flow(cfg):
     print_header_for("model")
-    env_name = input(f"Environment [{cfg.get('default_env', 'dev')}]: ").strip() or cfg.get("default_env", "dev")
+    env_name = input(f"Environment [{cfg.get('default_env', 'dev')}]: ").strip() \
+        or cfg.get("default_env", "dev")
+    
     model_name = input("Model name to deploy: ").strip()
     if not model_name:
         status("Model name is required. Aborting.", "error")
@@ -204,7 +206,9 @@ def cli_dispatch(args, cfg):
             env_name = args[2]
             rg_name = args[3]
             location = args[4] if len(args) > 4 else cfg.get("default_location")
-            status(f"Creating resource group '{rg_name}' in env '{env_name}' (location: {location})...", "action")
+            status(f"Creating resource group '{rg_name}' in env '{env_name}' \
+                   (location: {location})...", "action")
+            
             create_resource_group(env_name, rg_name, location)
             status("Create operation completed.", "success")
 
@@ -216,7 +220,9 @@ def cli_dispatch(args, cfg):
                 return
             env_name = args[2]
             rg_name = args[3]
-            status(f"Deleting resource group '{rg_name}' in env '{env_name}'...", "action")
+            status(f"Deleting resource group '{rg_name}' in env '{env_name}'...", \
+                   "action")
+            
             delete_resource_group(env_name, rg_name)
             status("Delete operation completed.", "success")
         else:
@@ -263,11 +269,14 @@ def cli_dispatch(args, cfg):
 def main():
     try:
         cfg = load_app_config()
+        print(f"{Fore.LIGHTBLACK_EX} Configuration load done")
+
     except Exception as e:
         print(f"{Fore.RED}Failed to load config: {e}{Style.RESET_ALL}")
         sys.exit(1)
 
     is_interactive = bool(cfg.get("interactive", False))
+    print(f"{Fore.LIGHTBLACK_EX} is_interactive: {is_interactive}")
 
     # If interactive mode enabled and no CLI args, run interactive menu
     if is_interactive and len(sys.argv) == 1:

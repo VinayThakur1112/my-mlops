@@ -24,24 +24,21 @@ def validate_resource_group(resource_client, rg_name):
         print(f"❌ Resource group '{rg_name}' does not exist.")
     return exists
 
-def create_resource_group():
+def create_resource_group(env_name, rg_name, location, subscription_id):
     """Create a resource group after validating"""
-    # config = load_config()
-    # subscription_id = config["subscription_id"]
-    # rg_name = config["resource_group"]["name"]
-    # location = config["resource_group"]["location"]
+    print("create_resource_group function called")
 
-    # resource_client = get_resource_client(subscription_id)
+    resource_client = get_resource_client(subscription_id)
 
-    # if validate_resource_group(resource_client, rg_name):
-    #     print(f"ℹ️ Resource group '{rg_name}' already exists. Skipping creation.")
-    #     return
+    if validate_resource_group(resource_client, rg_name):
+        print(f"ℹ️ Resource group '{rg_name}' already exists. Skipping creation.")
+        return
 
-    # print(f"🚀 Creating resource group '{rg_name}' in '{location}'...")
-    # rg_result = resource_client.resource_groups.create_or_update(
-    #     rg_name, {"location": location}
-    # )
-    # print(f"✅ Resource group '{rg_result.name}' created successfully.")
+    print(f"🚀 Creating resource group '{rg_name}' in '{location}'...")
+    rg_result = resource_client.resource_groups.create_or_update(
+        rg_name, {"location": location}
+    )
+    print(f"✅ Resource group '{rg_result.name}' created successfully.")
 
 def delete_resource_group():
     """Delete a resource group after validating"""
