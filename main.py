@@ -172,6 +172,7 @@ def interactive_resource_flow(cfg):
         status("✅ Delete operation completed successfully.", "success")
     else:
         status("Invalid action selected.", "error")
+        
 
 
 def interactive_pipeline_flow(cfg):
