@@ -227,11 +227,6 @@ def main():
         print_usage()
         return
 
-    # Parse CLI args (skip script name)
-    cli_args = sys.argv[1:]
-    # expected: <service> <action> ...
-    cli_dispatch(cli_args, cfg)
-
 
 if __name__ == "__main__":
     main()
