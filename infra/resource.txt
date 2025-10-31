@@ -1,0 +1,35 @@
+#########################################################################################
+# ENVIRONMENT VARIABLES
+#########################################################################################
+AZURE_PAT=
+SUBSCRIPTION_ID=
+RG_NAME=rg-mymlops
+RG_LOCATION=centralindia
+VM_NAME=MyMLOPSVM
+VM_IMAGE=Ubuntu2204
+VM_ADMIN_USER=azureuser
+
+
+#########################################################################################
+# VM CREATION COMMAND
+#########################################################################################
+az vm create \
+  --resource-group $RG_NAME \
+  --name $VM_NAME \
+  --image $IMAGE \
+  --admin-username $ADMIN_USER \
+  --authentication-type ssh \
+  --ssh-key-values ~/.ssh/id_rsa.pub \
+  --size Standard_B1s
+
+
+#########################################################################################
+# VM STOP COMMAND
+#########################################################################################
+az vm stop --name $VM_NAME --resource-group $RG_NAME
+
+
+#########################################################################################
+# VM DEALLOCATION COMMAND
+#########################################################################################
+az vm deallocate --name $VM_NAME --resource-group $RG_NAME
