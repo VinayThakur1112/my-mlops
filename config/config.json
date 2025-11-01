@@ -1,24 +1,30 @@
 {
-    "azure_pat": "",
-    "interactive": false,
-    "default_env": "prd",
-    "subscription_id": "",
-
     "resource_group": {
         "name": "rg-mymlops",
-        "location": "centralindia"
+        "location": "eastus"
+    },
+
+    "vm": {
+        "name": "vm-mlops",
+        "size": "Standard_B1ms",
+        "admin_username": "azureuser",
+        "ssh_public_key_path": "~/.ssh/id_rsa.pub",
+        "virtual_network": "vnet-mlops",
+        "sub_network": "subnet-mlops", 
+        "network_security_grp": "nsg-mlops",
+        "public_ip": "pip-mlops",
+        "network_interface": "nic-mlops"
     },
 
     "databricks": {
         "workspace": "dbw-mymlops",
         "cluster_name": "mymlops-cluster",
-        "pat": "",
         "node_type": "Standard_F4"
     },
 
     "storage": {
         "storage_account": "storageguestsense",
-        "containers": "brnz,slvr,gold"
+        "containers": "bronze,silvr,gold"
     },
 
     "container_registry": {
