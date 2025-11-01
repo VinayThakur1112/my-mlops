@@ -16,7 +16,7 @@ VM_ADMIN_USER=azureuser
 az vm create \
   --resource-group $RG_NAME \
   --name $VM_NAME \
-  --image $IMAGE \
+  --image $VM_IMAGE \
   --admin-username $ADMIN_USER \
   --authentication-type ssh \
   --ssh-key-values ~/.ssh/id_rsa.pub \
