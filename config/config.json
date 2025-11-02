@@ -24,7 +24,7 @@
 
     "storage": {
         "storage_account": "storagemymlops",
-        "containers": "bronze,silvr,gold"
+        "containers": "bronze,silver,gold"
     },
 
     "container_registry": {
