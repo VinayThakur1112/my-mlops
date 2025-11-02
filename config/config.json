@@ -23,13 +23,13 @@
     },
 
     "storage": {
-        "storage_account": "storageguestsense",
+        "storage_account": "storagemymlops",
         "containers": "bronze,silvr,gold"
     },
 
     "container_registry": {
         "name": "containermymlops",
-        "cluster_name": "clusterguestsense",
+        "cluster_name": "clustermlops",
         "node": "2",
         "node_size": "Standard_DS2_v2"
     },
